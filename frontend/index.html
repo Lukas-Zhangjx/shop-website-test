@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一品翠坊 · 金银珠宝</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* ===== Hero ===== */
+  .hero {
+    margin-top: 70px;
+    height: 88vh;
+    background: linear-gradient(135deg, #0d2118 0%, #1a3a2a 40%, #2d5a3d 70%, #1a3a2a 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 30%, rgba(201,168,76,0.06) 0%, transparent 50%);
+  }
+
+  .hero-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+  .hero-circle-1 { width: 500px; height: 500px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .hero-circle-2 { width: 680px; height: 680px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .hero-circle-3 { width: 860px; height: 860px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  .hero-content { position: relative; text-align: center; color: var(--cream); z-index: 2; }
+
+  .hero-tag { font-size: 0.75rem; letter-spacing: 6px; color: var(--gold); margin-bottom: 24px; display: block; }
+  .hero-title { font-size: 4rem; font-weight: normal; letter-spacing: 12px; line-height: 1.2; margin-bottom: 16px; }
+  .hero-subtitle { font-size: 1rem; color: rgba(245,240,232,0.6); letter-spacing: 4px; margin-bottom: 48px; }
+  .hero-divider { width: 60px; height: 1px; background: var(--gold); margin: 0 auto 48px; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    color: rgba(201,168,76,0.5);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.5), transparent);
+    animation: scrollAnim 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollAnim {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* ===== 分类 ===== */
+  .categories { background: var(--green-dark); }
+  .categories .section-title { color: var(--cream); }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .cat-card { position: relative; height: 380px; overflow: hidden; cursor: pointer; text-decoration: none; }
+
+  .cat-bg { position: absolute; inset: 0; transition: transform 0.6s ease; }
+  .cat-card:hover .cat-bg { transform: scale(1.05); }
+  .cat-bg-gold { background: linear-gradient(135deg, #8B6914, #c9a84c, #a07820); }
+  .cat-bg-silver { background: linear-gradient(135deg, #5a6570, #9aabb5, #6b7d87); }
+  .cat-bg-jade { background: linear-gradient(135deg, #1a5c3a, #2d8a5a, #1a4a2e); }
+
+  .cat-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); }
+
+  .cat-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 32px; color: white; }
+  .cat-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+  .cat-name { font-size: 1.4rem; letter-spacing: 4px; font-weight: normal; margin-bottom: 8px; }
+  .cat-desc { font-size: 0.8rem; color: rgba(255,255,255,0.65); letter-spacing: 1px; }
+
+  .cat-arrow {
+    position: absolute; top: 32px; right: 32px;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1rem; transition: all 0.3s;
+  }
+  .cat-card:hover .cat-arrow { background: var(--gold); border-color: var(--gold); color: var(--green-dark); }
+
+  /* ===== 商品 ===== */
+  .products { background: var(--cream); }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .product-card {
+    background: white;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(201,168,76,0.1);
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+
+  .product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(26,58,42,0.12); }
+
+  .product-img { height: 220px; position: relative; overflow: hidden; background: var(--cream-dark); }
+
+  .product-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .product-card:hover .product-img img { transform: scale(1.08); }
+
+  .product-img-placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; opacity: 0.3;
+  }
+
+  .product-tag {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--green-dark);
+    color: var(--gold);
+    font-size: 0.65rem; letter-spacing: 2px;
+    padding: 4px 10px;
+  }
+
+  .product-info { padding: 20px; border-top: 1px solid rgba(201,168,76,0.15); }
+  .product-name { font-size: 0.95rem; letter-spacing: 2px; color: var(--green-dark); margin-bottom: 8px; }
+  .product-sub { font-size: 0.75rem; color: var(--text-mid); letter-spacing: 1px; margin-bottom: 14px; }
+  .product-price { font-size: 1.1rem; color: var(--gold); letter-spacing: 1px; }
+  .product-price small { font-size: 0.7rem; color: #999; letter-spacing: 1px; margin-left: 6px; }
+
+  /* ===== 品牌故事 ===== */
+  .story { background: var(--green-dark); }
+
+  .story-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+
+  .story-img {
+    height: 500px;
+    background: linear-gradient(135deg, #0d2118 0%, #2d5a3d 60%, #1a3a2a 100%);
+    position: relative;
+  }
+
+  .story-img::before {
+    content: '一品翠坊';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem; color: rgba(201,168,76,0.25);
+    letter-spacing: 8px; white-space: nowrap;
+  }
+
+  .story-img::after {
+    content: '';
+    position: absolute; inset: 20px;
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .story-content { color: var(--cream); }
+  .story-content .section-tag { text-align: left; }
+  .story-title { font-size: 1.8rem; font-weight: normal; letter-spacing: 5px; margin-bottom: 12px; }
+  .story-line { width: 40px; height: 1px; background: var(--gold); margin-bottom: 30px; }
+  .story-text { font-size: 0.9rem; line-height: 2; color: rgba(245,240,232,0.7); letter-spacing: 1px; margin-bottom: 16px; }
+
+  .story-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; margin-top: 48px; padding-top: 40px;
+    border-top: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .stat-num { font-size: 2rem; color: var(--gold); letter-spacing: 2px; display: block; margin-bottom: 6px; }
+  .stat-label { font-size: 0.75rem; color: rgba(245,240,232,0.5); letter-spacing: 2px; }
+
+  @media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .cat-grid { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .story-inner { grid-template-columns: 1fr; }
+    .story-img { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav>
+  <a href="index.html" class="logo">
+    一品翠坊
+    <span>YIPIN CUIFANG · EST. 2008</span>
+  </a>
+  <ul>
+    <li><a href="index.html?category=gold">黄金系列</a></li>
+    <li><a href="index.html?category=silver">白银系列</a></li>
+    <li><a href="index.html?category=jade">翡翠玉石</a></li>
+    <li><a href="#story">关于我们</a></li>
+  </ul>
+  <a href="tel:13800000000" class="nav-contact">联系我们</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-circle hero-circle-3"></div>
+  <div class="hero-circle hero-circle-2"></div>
+  <div class="hero-circle hero-circle-1"></div>
+  <div class="hero-content">
+    <span class="hero-tag">YIPIN CUIFANG · 金银珠宝</span>
+    <h1 class="hero-title">匠心传承<br>一品成就</h1>
+    <div class="hero-divider"></div>
+    <p class="hero-subtitle">甄选上品翡翠 · 精工黄金白银 · 传承东方美学</p>
+    <a href="tel:13800000000" class="btn-primary">立即询价</a>
+    <a href="#products" class="btn-secondary">浏览商品</a>
+  </div>
+  <div class="scroll-hint">
+    <span>向下探索</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- 分类 -->
+<section class="categories">
+  <div class="section-header">
+    <span class="section-tag">COLLECTIONS</span>
+    <h2 class="section-title">甄选系列</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="cat-grid">
+    <a href="index.html?category=gold" class="cat-card">
+      <div class="cat-bg cat-bg-gold"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-arrow">→</div>
+      <div class="cat-content">
+        <span class="cat-icon">✦</span>
+        <div class="cat-name">黄金系列</div>
+        <div class="cat-desc">足金 · 千足金 · 黄金镶嵌</div>
+      </div>
+    </a>
+    <a href="index.html?category=silver" class="cat-card">
+      <div class="cat-bg cat-bg-silver"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-arrow">→</div>
+      <div class="cat-content">
+        <span class="cat-icon">◈</span>
+        <div class="cat-name">白银系列</div>
+        <div class="cat-desc">S999 · S990 · 银镶宝石</div>
+      </div>
+    </a>
+    <a href="index.html?category=jade" class="cat-card">
+      <div class="cat-bg cat-bg-jade"></div>
+      <div class="cat-overlay"></div>
+      <div class="cat-arrow">→</div>
+      <div class="cat-content">
+        <span class="cat-icon">❋</span>
+        <div class="cat-name">翡翠玉石</div>
+        <div class="cat-desc">A货翡翠 · 和田玉 · 南红玛瑙</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- 商品列表 -->
+<section class="products" id="products">
+  <div class="section-header">
+    <span class="section-tag">HOT ITEMS</span>
+    <h2 class="section-title" id="productsTitle">热门臻品</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="product-grid" id="productGrid">
+    <div class="loading">加载中...</div>
+  </div>
+</section>
+
+<!-- 品牌故事 -->
+<section class="story" id="story">
+  <div class="story-inner">
+    <div class="story-img"></div>
+    <div class="story-content">
+      <span class="section-tag">BRAND STORY</span>
+      <h2 class="story-title">匠心铸造<br>岁月为证</h2>
+      <div class="story-line"></div>
+      <p class="story-text">
+        一品翠坊创立于2008年，扎根本地珠宝行业逾十六载。我们秉承"诚信为本、品质为先"的经营理念，专注于甄选上乘翡翠、足金黄金及精工白银饰品。
+      </p>
+      <p class="story-text">
+        每一件商品均经过严格质检，翡翠制品提供权威鉴定证书，黄金制品按当日金价透明计价，让每一位顾客买得放心、戴得安心。
+      </p>
+      <div class="story-stats">
+        <div><span class="stat-num">16+</span><span class="stat-label">年匠心经营</span></div>
+        <div><span class="stat-num">3000+</span><span class="stat-label">服务客户</span></div>
+        <div><span class="stat-num">100%</span><span class="stat-label">正品保证</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 底部 -->
+<footer>
+  <span class="footer-logo">一品翠坊</span>
+  <div class="footer-info">
+    <div class="footer-info-item">
+      <span class="footer-info-label">地址</span>
+      <span>珠宝街88号一品翠坊旗舰店</span>
+    </div>
+    <div class="footer-info-item">
+      <span class="footer-info-label">电话</span>
+      <span>138-0000-0000</span>
+    </div>
+    <div class="footer-info-item">
+      <span class="footer-info-label">营业时间</span>
+      <span>每日 09:00 — 20:00</span>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
+  <div class="footer-copy">© 2024 一品翠坊 · 版权所有</div>
+</footer>
+
+<!-- AI客服 -->
+<button class="ai-btn" onclick="toggleChat()">💬</button>
+<div class="ai-chat" id="aiChat">
+  <div class="ai-chat-header">
+    <div class="ai-avatar">✦</div>
+    <div>
+      <div class="ai-name">翠坊智能客服</div>
+      <div class="ai-status">在线 · 随时为您服务</div>
+    </div>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="msg msg-ai">您好！欢迎光临一品翠坊 ✨<br>请问您对哪类珠宝感兴趣？</div>
+  </div>
+  <div class="ai-input-area">
+    <input class="ai-input" id="aiInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="ai-send" onclick="sendMsg()">发送</button>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
