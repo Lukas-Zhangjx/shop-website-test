@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('../db/database');
+const pool = require('../db/database');
 const authMiddleware = require('../middleware/auth');
 
 // 配置图片上传
@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // 文件名：时间戳 + 原始扩展名，避免重名
     const ext = path.extname(file.originalname);
     cb(null, `${Date.now()}${ext}`);
   },
@@ -22,7 +21,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 最大 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|webp/;
     if (allowed.test(path.extname(file.originalname).toLowerCase())) {
@@ -33,79 +32,86 @@ const upload = multer({
   },
 });
 
-// GET /api/subcategories — 获取所有小分类（按大分类分组）
-router.get('/subcategories', (req, res) => {
+// GET /api/products/subcategories — 获取小分类列表
+router.get('/subcategories', async (req, res) => {
   const { category } = req.query;
-  let query = `SELECT DISTINCT subcategory, category FROM products WHERE is_active = 1 AND subcategory IS NOT NULL AND subcategory != ''`;
-  const params = [];
-
-  if (category) {
-    query += ' AND category = ?';
-    params.push(category);
+  try {
+    let query = `SELECT DISTINCT subcategory, category FROM products WHERE is_active = 1 AND subcategory IS NOT NULL AND subcategory != ''`;
+    const params = [];
+    if (category) { query += ` AND category = $1`; params.push(category); }
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
   }
-
-  const rows = db.prepare(query).all(...params);
-  res.json(rows);
 });
 
-// GET /api/products — 获取商品列表（用户端，只返回上架商品）
-router.get('/', (req, res) => {
+// GET /api/products — 获取商品列表
+router.get('/', async (req, res) => {
   const { category, subcategory, page = 1, limit = 12 } = req.query;
   const offset = (page - 1) * limit;
 
-  let query = 'SELECT * FROM products WHERE is_active = 1';
-  const params = [];
+  try {
+    let query = 'SELECT * FROM products WHERE is_active = 1';
+    const params = [];
+    let i = 1;
 
-  if (category) {
-    query += ' AND category = ?';
-    params.push(category);
+    if (category) { query += ` AND category = $${i++}`; params.push(category); }
+    if (subcategory) { query += ` AND subcategory = $${i++}`; params.push(subcategory); }
+
+    query += ` ORDER BY created_at DESC LIMIT $${i++} OFFSET $${i++}`;
+    params.push(Number(limit), Number(offset));
+
+    const result = await pool.query(query, params);
+
+    // 统计总数
+    let countQuery = 'SELECT COUNT(*) FROM products WHERE is_active = 1';
+    const countParams = [];
+    let j = 1;
+    if (category) { countQuery += ` AND category = $${j++}`; countParams.push(category); }
+    if (subcategory) { countQuery += ` AND subcategory = $${j++}`; countParams.push(subcategory); }
+
+    const countResult = await pool.query(countQuery, countParams);
+
+    res.json({
+      products: result.rows,
+      total: Number(countResult.rows[0].count),
+      page: Number(page),
+      limit: Number(limit),
+    });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
   }
-
-  if (subcategory) {
-    query += ' AND subcategory = ?';
-    params.push(subcategory);
-  }
-
-  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-  params.push(Number(limit), Number(offset));
-
-  const products = db.prepare(query).all(...params);
-
-  let countQuery = 'SELECT COUNT(*) as count FROM products WHERE is_active = 1';
-  const countParams = [];
-  if (category) { countQuery += ' AND category = ?'; countParams.push(category); }
-  if (subcategory) { countQuery += ' AND subcategory = ?'; countParams.push(subcategory); }
-
-  const total = db.prepare(countQuery).get(...countParams).count;
-
-  res.json({ products, total, page: Number(page), limit: Number(limit) });
 });
 
-// GET /api/products/:id — 获取单个商品详情
-router.get('/:id', (req, res) => {
-  const product = db
-    .prepare('SELECT * FROM products WHERE id = ? AND is_active = 1')
-    .get(req.params.id);
-
-  if (!product) {
-    return res.status(404).json({ message: '商品不存在' });
+// GET /api/products/admin/all — 后台获取所有商品
+router.get('/admin/all', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
   }
-
-  res.json(product);
 });
 
-// ===== 以下接口需要管理员登录 =====
-
-// GET /api/products/admin/all — 后台获取所有商品（含下架）
-router.get('/admin/all', authMiddleware, (req, res) => {
-  const products = db
-    .prepare('SELECT * FROM products ORDER BY created_at DESC')
-    .all();
-  res.json(products);
+// GET /api/products/:id — 获取单个商品
+router.get('/:id', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM products WHERE id = $1 AND is_active = 1',
+      [req.params.id]
+    );
+    if (!result.rows[0]) {
+      return res.status(404).json({ message: '商品不存在' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
+  }
 });
 
 // POST /api/products — 新增商品
-router.post('/', authMiddleware, upload.single('image'), (req, res) => {
+router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
   const { name, description, price, category, subcategory, stock } = req.body;
 
   if (!name || !price || !category) {
@@ -114,68 +120,79 @@ router.post('/', authMiddleware, upload.single('image'), (req, res) => {
 
   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-  const result = db
-    .prepare(
-      'INSERT INTO products (name, description, price, category, subcategory, image_path, stock) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    )
-    .run(name, description || '', Number(price), category, subcategory || '', imagePath, Number(stock) || 1);
-
-  res.status(201).json({ message: '商品添加成功', id: result.lastInsertRowid });
+  try {
+    const result = await pool.query(
+      'INSERT INTO products (name, description, price, category, subcategory, image_path, stock) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [name, description || '', Number(price), category, subcategory || '', imagePath, Number(stock) || 1]
+    );
+    res.status(201).json({ message: '商品添加成功', id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
+  }
 });
 
 // PUT /api/products/:id — 修改商品
-router.put('/:id', authMiddleware, upload.single('image'), (req, res) => {
+router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
   const { name, description, price, category, subcategory, stock, is_active } = req.body;
-  const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
 
-  if (!existing) {
-    return res.status(404).json({ message: '商品不存在' });
+  try {
+    const existing = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    if (!existing.rows[0]) {
+      return res.status(404).json({ message: '商品不存在' });
+    }
+
+    const product = existing.rows[0];
+
+    if (req.file && product.image_path) {
+      const oldPath = path.join(__dirname, '..', product.image_path);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : product.image_path;
+
+    await pool.query(
+      `UPDATE products SET
+        name = $1, description = $2, price = $3, category = $4, subcategory = $5,
+        image_path = $6, stock = $7, is_active = $8, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $9`,
+      [
+        name || product.name,
+        description ?? product.description,
+        Number(price) || product.price,
+        category || product.category,
+        subcategory !== undefined ? subcategory : product.subcategory,
+        imagePath,
+        Number(stock) ?? product.stock,
+        is_active !== undefined ? Number(is_active) : product.is_active,
+        req.params.id,
+      ]
+    );
+
+    res.json({ message: '商品更新成功' });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
   }
-
-  // 如果上传了新图片，删除旧图片
-  if (req.file && existing.image_path) {
-    const oldPath = path.join(__dirname, '..', existing.image_path);
-    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-  }
-
-  const imagePath = req.file ? `/uploads/${req.file.filename}` : existing.image_path;
-
-  db.prepare(
-    `UPDATE products SET
-      name = ?, description = ?, price = ?, category = ?, subcategory = ?,
-      image_path = ?, stock = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?`
-  ).run(
-    name || existing.name,
-    description ?? existing.description,
-    Number(price) || existing.price,
-    category || existing.category,
-    subcategory !== undefined ? subcategory : existing.subcategory,
-    imagePath,
-    Number(stock) ?? existing.stock,
-    is_active !== undefined ? Number(is_active) : existing.is_active,
-    req.params.id
-  );
-
-  res.json({ message: '商品更新成功' });
 });
 
 // DELETE /api/products/:id — 删除商品
-router.delete('/:id', authMiddleware, (req, res) => {
-  const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const existing = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+    if (!existing.rows[0]) {
+      return res.status(404).json({ message: '商品不存在' });
+    }
 
-  if (!existing) {
-    return res.status(404).json({ message: '商品不存在' });
+    const product = existing.rows[0];
+    if (product.image_path) {
+      const imgPath = path.join(__dirname, '..', product.image_path);
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+    }
+
+    await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+    res.json({ message: '商品删除成功' });
+  } catch (err) {
+    res.status(500).json({ message: '服务器错误' });
   }
-
-  // 删除对应图片文件
-  if (existing.image_path) {
-    const imgPath = path.join(__dirname, '..', existing.image_path);
-    if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-  }
-
-  db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
-  res.json({ message: '商品删除成功' });
 });
 
 module.exports = router;

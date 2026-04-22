@@ -1,11 +1,9 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const { Pool } = require('pg');
 
-// 数据库文件存在 backend/src/db/shop.db
-const dbPath = path.join(__dirname, 'shop.db');
-const db = new Database(dbPath);
+// 使用环境变量连接 Supabase PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // Supabase 需要 SSL
+});
 
-// 开启 WAL 模式，提升性能
-db.pragma('journal_mode = WAL');
-
-module.exports = db;
+module.exports = pool;

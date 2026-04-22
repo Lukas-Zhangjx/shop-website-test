@@ -3,7 +3,8 @@ const cors = require('cors');
 const path = require('path');
 
 // 初始化数据库建表
-require('./db/init');
+const initDB = require('./db/init');
+initDB().catch(err => console.error('数据库初始化失败:', err));
 
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
