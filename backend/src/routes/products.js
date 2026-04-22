@@ -33,9 +33,24 @@ const upload = multer({
   },
 });
 
+// GET /api/subcategories — 获取所有小分类（按大分类分组）
+router.get('/subcategories', (req, res) => {
+  const { category } = req.query;
+  let query = `SELECT DISTINCT subcategory, category FROM products WHERE is_active = 1 AND subcategory IS NOT NULL AND subcategory != ''`;
+  const params = [];
+
+  if (category) {
+    query += ' AND category = ?';
+    params.push(category);
+  }
+
+  const rows = db.prepare(query).all(...params);
+  res.json(rows);
+});
+
 // GET /api/products — 获取商品列表（用户端，只返回上架商品）
 router.get('/', (req, res) => {
-  const { category, page = 1, limit = 12 } = req.query;
+  const { category, subcategory, page = 1, limit = 12 } = req.query;
   const offset = (page - 1) * limit;
 
   let query = 'SELECT * FROM products WHERE is_active = 1';
@@ -46,15 +61,22 @@ router.get('/', (req, res) => {
     params.push(category);
   }
 
+  if (subcategory) {
+    query += ' AND subcategory = ?';
+    params.push(subcategory);
+  }
+
   query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
   params.push(Number(limit), Number(offset));
 
   const products = db.prepare(query).all(...params);
-  const total = db
-    .prepare(
-      `SELECT COUNT(*) as count FROM products WHERE is_active = 1${category ? ' AND category = ?' : ''}`
-    )
-    .get(...(category ? [category] : [])).count;
+
+  let countQuery = 'SELECT COUNT(*) as count FROM products WHERE is_active = 1';
+  const countParams = [];
+  if (category) { countQuery += ' AND category = ?'; countParams.push(category); }
+  if (subcategory) { countQuery += ' AND subcategory = ?'; countParams.push(subcategory); }
+
+  const total = db.prepare(countQuery).get(...countParams).count;
 
   res.json({ products, total, page: Number(page), limit: Number(limit) });
 });
@@ -84,7 +106,7 @@ router.get('/admin/all', authMiddleware, (req, res) => {
 
 // POST /api/products — 新增商品
 router.post('/', authMiddleware, upload.single('image'), (req, res) => {
-  const { name, description, price, category, stock } = req.body;
+  const { name, description, price, category, subcategory, stock } = req.body;
 
   if (!name || !price || !category) {
     return res.status(400).json({ message: '商品名、价格、分类为必填项' });
@@ -94,16 +116,16 @@ router.post('/', authMiddleware, upload.single('image'), (req, res) => {
 
   const result = db
     .prepare(
-      'INSERT INTO products (name, description, price, category, image_path, stock) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO products (name, description, price, category, subcategory, image_path, stock) VALUES (?, ?, ?, ?, ?, ?, ?)'
     )
-    .run(name, description || '', Number(price), category, imagePath, Number(stock) || 1);
+    .run(name, description || '', Number(price), category, subcategory || '', imagePath, Number(stock) || 1);
 
   res.status(201).json({ message: '商品添加成功', id: result.lastInsertRowid });
 });
 
 // PUT /api/products/:id — 修改商品
 router.put('/:id', authMiddleware, upload.single('image'), (req, res) => {
-  const { name, description, price, category, stock, is_active } = req.body;
+  const { name, description, price, category, subcategory, stock, is_active } = req.body;
   const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
 
   if (!existing) {
@@ -120,7 +142,7 @@ router.put('/:id', authMiddleware, upload.single('image'), (req, res) => {
 
   db.prepare(
     `UPDATE products SET
-      name = ?, description = ?, price = ?, category = ?,
+      name = ?, description = ?, price = ?, category = ?, subcategory = ?,
       image_path = ?, stock = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?`
   ).run(
@@ -128,6 +150,7 @@ router.put('/:id', authMiddleware, upload.single('image'), (req, res) => {
     description ?? existing.description,
     Number(price) || existing.price,
     category || existing.category,
+    subcategory !== undefined ? subcategory : existing.subcategory,
     imagePath,
     Number(stock) ?? existing.stock,
     is_active !== undefined ? Number(is_active) : existing.is_active,

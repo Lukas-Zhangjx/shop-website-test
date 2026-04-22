@@ -1,15 +1,17 @@
 const API_BASE = 'https://shop-website-test.onrender.com/api';
 
-// 分类中文映射
 const CATEGORY_MAP = {
   gold: { name: '黄金系列', icon: '✦' },
   silver: { name: '白银系列', icon: '◈' },
   jade: { name: '翡翠玉石', icon: '❋' },
 };
 
-// 获取 URL 参数中的分类
 function getCategoryFromUrl() {
   return new URLSearchParams(window.location.search).get('category');
+}
+
+function getSubcategoryFromUrl() {
+  return new URLSearchParams(window.location.search).get('subcategory');
 }
 
 // 渲染单个商品卡片
@@ -23,7 +25,7 @@ function renderProductCard(product) {
     <a href="pages/product.html?id=${product.id}" class="product-card">
       <div class="product-img">
         ${imageHtml}
-        <div class="product-tag">${category.name}</div>
+        <div class="product-tag">${product.subcategory || category.name}</div>
       </div>
       <div class="product-info">
         <div class="product-name">${product.name}</div>
@@ -34,12 +36,39 @@ function renderProductCard(product) {
   `;
 }
 
+// 加载小分类筛选栏
+async function loadSubcategories(category) {
+  const bar = document.getElementById('subcategoryBar');
+  if (!bar || !category) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/subcategories?category=${category}`);
+    const data = await res.json();
+
+    if (!data.length) { bar.style.display = 'none'; return; }
+
+    const currentSub = getSubcategoryFromUrl();
+
+    bar.innerHTML = `
+      <a href="index.html?category=${category}" class="sub-tag ${!currentSub ? 'active' : ''}">全部</a>
+      ${data.map(row => `
+        <a href="index.html?category=${category}&subcategory=${encodeURIComponent(row.subcategory)}"
+           class="sub-tag ${currentSub === row.subcategory ? 'active' : ''}">
+          ${row.subcategory}
+        </a>
+      `).join('')}
+    `;
+    bar.style.display = 'flex';
+  } catch (err) {
+    bar.style.display = 'none';
+  }
+}
+
 // 加载商品列表
-async function loadProducts(category = null) {
+async function loadProducts(category = null, subcategory = null) {
   const grid = document.getElementById('productGrid');
   const title = document.getElementById('productsTitle');
 
-  // 更新标题
   if (category && CATEGORY_MAP[category]) {
     title.textContent = CATEGORY_MAP[category].name;
   } else {
@@ -49,9 +78,9 @@ async function loadProducts(category = null) {
   grid.innerHTML = '<div class="loading">加载中...</div>';
 
   try {
-    const url = category
-      ? `${API_BASE}/products?category=${category}`
-      : `${API_BASE}/products`;
+    let url = `${API_BASE}/products?`;
+    if (category) url += `category=${category}&`;
+    if (subcategory) url += `subcategory=${encodeURIComponent(subcategory)}&`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -89,8 +118,6 @@ async function sendMsg() {
   appendMsg(text, 'user');
   input.value = '';
 
-  // TODO: 接入真实 AI API（RAG）
-  // 目前先用关键词匹配模拟
   setTimeout(() => {
     const keyword = text.toLowerCase();
     let reply = '感谢您的询问！建议您直接来店体验，或拨打 138-0000-0000 咨询。';
@@ -114,9 +141,11 @@ async function sendMsg() {
 // 页面初始化
 document.addEventListener('DOMContentLoaded', () => {
   const category = getCategoryFromUrl();
-  loadProducts(category);
+  const subcategory = getSubcategoryFromUrl();
 
-  // 如果有分类参数，自动滚动到商品区域
+  loadSubcategories(category);
+  loadProducts(category, subcategory);
+
   if (category) {
     setTimeout(() => {
       document.getElementById('products').scrollIntoView({ behavior: 'smooth' });

@@ -136,6 +136,7 @@ async function openModal(id = null) {
       document.getElementById('editId').value = product.id;
       document.getElementById('fieldName').value = product.name;
       document.getElementById('fieldCategory').value = product.category;
+      document.getElementById('fieldSubcategory').value = product.subcategory || '';
       document.getElementById('fieldPrice').value = product.price;
       document.getElementById('fieldStock').value = product.stock;
       document.getElementById('fieldDesc').value = product.description || '';
@@ -175,6 +176,7 @@ async function saveProduct() {
   const id = document.getElementById('editId').value;
   const name = document.getElementById('fieldName').value.trim();
   const category = document.getElementById('fieldCategory').value;
+  const subcategory = document.getElementById('fieldSubcategory').value.trim();
   const price = document.getElementById('fieldPrice').value;
   const stock = document.getElementById('fieldStock').value;
   const description = document.getElementById('fieldDesc').value.trim();
@@ -188,6 +190,7 @@ async function saveProduct() {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('category', category);
+  formData.append('subcategory', subcategory);
   formData.append('price', price);
   formData.append('stock', stock || 1);
   formData.append('description', description);

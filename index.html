@@ -199,6 +199,32 @@
   .stat-num { font-size: 2rem; color: var(--gold); letter-spacing: 2px; display: block; margin-bottom: 6px; }
   .stat-label { font-size: 0.75rem; color: rgba(245,240,232,0.5); letter-spacing: 2px; }
 
+  /* ===== 小分类筛选栏 ===== */
+  .subcategory-bar {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 1200px;
+    margin: -40px auto 40px;
+    padding: 0 20px;
+  }
+
+  .sub-tag {
+    padding: 7px 20px;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--text-mid);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .sub-tag:hover, .sub-tag.active {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: var(--gold);
+  }
+
   @media (max-width: 768px) {
     .hero-title { font-size: 2.5rem; }
     .cat-grid { grid-template-columns: 1fr; }
@@ -292,6 +318,9 @@
     <h2 class="section-title" id="productsTitle">热门臻品</h2>
     <div class="section-line"></div>
   </div>
+  <!-- 小分类筛选栏 -->
+  <div class="subcategory-bar" id="subcategoryBar"></div>
+
   <div class="product-grid" id="productGrid">
     <div class="loading">加载中...</div>
   </div>
