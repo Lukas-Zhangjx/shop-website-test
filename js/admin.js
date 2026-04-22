@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://shop-website-test.onrender.com/api';
 
 const CATEGORY_MAP = {
   gold: '黄金系列',

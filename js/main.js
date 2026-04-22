@@ -1,5 +1,4 @@
-// 后端地址，部署后改成 Railway 的地址
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://shop-website-test.onrender.com/api';
 
 // 分类中文映射
 const CATEGORY_MAP = {
