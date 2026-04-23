@@ -243,12 +243,15 @@
     <span>YIPIN CUIFANG · EST. 2008</span>
   </a>
   <ul>
-    <li><a href="index.html?category=gold">黄金系列</a></li>
-    <li><a href="index.html?category=silver">白银系列</a></li>
-    <li><a href="index.html?category=jade">翡翠玉石</a></li>
-    <li><a href="#story">关于我们</a></li>
+    <li><a href="index.html?category=gold" data-i18n="nav.gold">黄金系列</a></li>
+    <li><a href="index.html?category=silver" data-i18n="nav.silver">白银系列</a></li>
+    <li><a href="index.html?category=jade" data-i18n="nav.jade">翡翠玉石</a></li>
+    <li><a href="#story" data-i18n="nav.about">关于我们</a></li>
   </ul>
-  <a href="tel:13800000000" class="nav-contact">联系我们</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button id="langToggle" class="lang-toggle" onclick="toggleLang()">EN</button>
+    <a href="tel:13800000000" class="nav-contact" data-i18n="nav.contact">联系我们</a>
+  </div>
 </nav>
 
 <!-- Hero -->
@@ -257,15 +260,15 @@
   <div class="hero-circle hero-circle-2"></div>
   <div class="hero-circle hero-circle-1"></div>
   <div class="hero-content">
-    <span class="hero-tag">YIPIN CUIFANG · 金银珠宝</span>
-    <h1 class="hero-title">匠心传承<br>一品成就</h1>
+    <span class="hero-tag" data-i18n="hero.tag">YIPIN CUIFANG · 金银珠宝</span>
+    <h1 class="hero-title" data-i18n-html="hero.title">匠心传承<br>一品成就</h1>
     <div class="hero-divider"></div>
-    <p class="hero-subtitle">甄选上品翡翠 · 精工黄金白银 · 传承东方美学</p>
-    <a href="tel:13800000000" class="btn-primary">立即询价</a>
-    <a href="#products" class="btn-secondary">浏览商品</a>
+    <p class="hero-subtitle" data-i18n="hero.subtitle">甄选上品翡翠 · 精工黄金白银 · 传承东方美学</p>
+    <a href="tel:13800000000" class="btn-primary" data-i18n="hero.enquiry">立即询价</a>
+    <a href="#products" class="btn-secondary" data-i18n="hero.browse">浏览商品</a>
   </div>
   <div class="scroll-hint">
-    <span>向下探索</span>
+    <span data-i18n="hero.scroll">向下探索</span>
     <div class="scroll-line"></div>
   </div>
 </section>
@@ -273,8 +276,8 @@
 <!-- 分类 -->
 <section class="categories">
   <div class="section-header">
-    <span class="section-tag">COLLECTIONS</span>
-    <h2 class="section-title">甄选系列</h2>
+    <span class="section-tag" data-i18n="section.collections.tag">COLLECTIONS</span>
+    <h2 class="section-title" data-i18n="section.collections.title">甄选系列</h2>
     <div class="section-line"></div>
   </div>
   <div class="cat-grid">
@@ -284,8 +287,8 @@
       <div class="cat-arrow">→</div>
       <div class="cat-content">
         <span class="cat-icon">✦</span>
-        <div class="cat-name">黄金系列</div>
-        <div class="cat-desc">足金 · 千足金 · 黄金镶嵌</div>
+        <div class="cat-name" data-i18n="cat.gold.name">黄金系列</div>
+        <div class="cat-desc" data-i18n="cat.gold.desc">足金 · 千足金 · 黄金镶嵌</div>
       </div>
     </a>
     <a href="index.html?category=silver" class="cat-card">
@@ -294,8 +297,8 @@
       <div class="cat-arrow">→</div>
       <div class="cat-content">
         <span class="cat-icon">◈</span>
-        <div class="cat-name">白银系列</div>
-        <div class="cat-desc">S999 · S990 · 银镶宝石</div>
+        <div class="cat-name" data-i18n="cat.silver.name">白银系列</div>
+        <div class="cat-desc" data-i18n="cat.silver.desc">S999 · S990 · 银镶宝石</div>
       </div>
     </a>
     <a href="index.html?category=jade" class="cat-card">
@@ -304,8 +307,8 @@
       <div class="cat-arrow">→</div>
       <div class="cat-content">
         <span class="cat-icon">❋</span>
-        <div class="cat-name">翡翠玉石</div>
-        <div class="cat-desc">A货翡翠 · 和田玉 · 南红玛瑙</div>
+        <div class="cat-name" data-i18n="cat.jade.name">翡翠玉石</div>
+        <div class="cat-desc" data-i18n="cat.jade.desc">A货翡翠 · 和田玉 · 南红玛瑙</div>
       </div>
     </a>
   </div>
@@ -314,7 +317,7 @@
 <!-- 商品列表 -->
 <section class="products" id="products">
   <div class="section-header">
-    <span class="section-tag">HOT ITEMS</span>
+    <span class="section-tag" data-i18n="section.hot.tag">HOT ITEMS</span>
     <h2 class="section-title" id="productsTitle">热门臻品</h2>
     <div class="section-line"></div>
   </div>
@@ -331,19 +334,19 @@
   <div class="story-inner">
     <div class="story-img"></div>
     <div class="story-content">
-      <span class="section-tag">BRAND STORY</span>
-      <h2 class="story-title">匠心铸造<br>岁月为证</h2>
+      <span class="section-tag" data-i18n="section.story.tag">BRAND STORY</span>
+      <h2 class="story-title" data-i18n-html="story.title">匠心铸造<br>岁月为证</h2>
       <div class="story-line"></div>
-      <p class="story-text">
+      <p class="story-text" data-i18n="story.text1">
         一品翠坊创立于2008年，扎根本地珠宝行业逾十六载。我们秉承"诚信为本、品质为先"的经营理念，专注于甄选上乘翡翠、足金黄金及精工白银饰品。
       </p>
-      <p class="story-text">
+      <p class="story-text" data-i18n="story.text2">
         每一件商品均经过严格质检，翡翠制品提供权威鉴定证书，黄金制品按当日金价透明计价，让每一位顾客买得放心、戴得安心。
       </p>
       <div class="story-stats">
-        <div><span class="stat-num">16+</span><span class="stat-label">年匠心经营</span></div>
-        <div><span class="stat-num">3000+</span><span class="stat-label">服务客户</span></div>
-        <div><span class="stat-num">100%</span><span class="stat-label">正品保证</span></div>
+        <div><span class="stat-num">16+</span><span class="stat-label" data-i18n="stat.years">年匠心经营</span></div>
+        <div><span class="stat-num">3000+</span><span class="stat-label" data-i18n="stat.customers">服务客户</span></div>
+        <div><span class="stat-num">100%</span><span class="stat-label" data-i18n="stat.quality">正品保证</span></div>
       </div>
     </div>
   </div>
@@ -354,20 +357,20 @@
   <span class="footer-logo">一品翠坊</span>
   <div class="footer-info">
     <div class="footer-info-item">
-      <span class="footer-info-label">地址</span>
-      <span>珠宝街88号一品翠坊旗舰店</span>
+      <span class="footer-info-label" data-i18n="footer.address.label">地址</span>
+      <span data-i18n="footer.address">珠宝街88号一品翠坊旗舰店</span>
     </div>
     <div class="footer-info-item">
-      <span class="footer-info-label">电话</span>
+      <span class="footer-info-label" data-i18n="footer.phone.label">电话</span>
       <span>138-0000-0000</span>
     </div>
     <div class="footer-info-item">
-      <span class="footer-info-label">营业时间</span>
-      <span>每日 09:00 — 20:00</span>
+      <span class="footer-info-label" data-i18n="footer.hours.label">营业时间</span>
+      <span data-i18n="footer.hours">每日 09:00 — 20:00</span>
     </div>
   </div>
   <div class="footer-divider"></div>
-  <div class="footer-copy">© 2024 一品翠坊 · 版权所有</div>
+  <div class="footer-copy" data-i18n="footer.copy">© 2024 一品翠坊 · 版权所有</div>
 </footer>
 
 <!-- AI客服 -->
@@ -376,19 +379,20 @@
   <div class="ai-chat-header">
     <div class="ai-avatar">✦</div>
     <div>
-      <div class="ai-name">翠坊智能客服</div>
-      <div class="ai-status">在线 · 随时为您服务</div>
+      <div class="ai-name" data-i18n="chat.name">翠坊智能客服</div>
+      <div class="ai-status" data-i18n="chat.status">在线 · 随时为您服务</div>
     </div>
   </div>
   <div class="ai-messages" id="aiMessages">
-    <div class="msg msg-ai">您好！欢迎光临一品翠坊 ✨<br>请问您对哪类珠宝感兴趣？</div>
+    <div class="msg msg-ai" data-i18n="chat.greeting">您好！欢迎光临一品翠坊 ✨<br>请问您对哪类珠宝感兴趣？</div>
   </div>
   <div class="ai-input-area">
-    <input class="ai-input" id="aiInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="ai-send" onclick="sendMsg()">发送</button>
+    <input class="ai-input" id="aiInput" data-i18n-ph="chat.placeholder" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="ai-send" onclick="sendMsg()" data-i18n="chat.send">发送</button>
   </div>
 </div>
 
+<script src="js/i18n.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

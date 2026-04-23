@@ -1,10 +1,19 @@
 const API_BASE = 'https://shop-website-test.onrender.com/api';
 
-const CATEGORY_MAP = {
-  gold: { name: '黄金系列', icon: '✦' },
-  silver: { name: '白银系列', icon: '◈' },
-  jade: { name: '翡翠玉石', icon: '❋' },
+// 分类图标（不依赖语言）
+const CATEGORY_ICONS = {
+  gold: '✦',
+  silver: '◈',
+  jade: '❋',
 };
+
+function getCategoryMap() {
+  return {
+    gold:   { name: t('category.gold'),   icon: '✦' },
+    silver: { name: t('category.silver'), icon: '◈' },
+    jade:   { name: t('category.jade'),   icon: '❋' },
+  };
+}
 
 function getCategoryFromUrl() {
   return new URLSearchParams(window.location.search).get('category');
@@ -16,6 +25,7 @@ function getSubcategoryFromUrl() {
 
 // 渲染单个商品卡片
 function renderProductCard(product) {
+  const CATEGORY_MAP = getCategoryMap();
   const category = CATEGORY_MAP[product.category] || { name: product.category, icon: '✦' };
   const imageHtml = product.image_path
     ? `<img src="${API_BASE.replace('/api', '')}${product.image_path}" alt="${product.name}">`
@@ -30,7 +40,7 @@ function renderProductCard(product) {
       <div class="product-info">
         <div class="product-name">${product.name}</div>
         <div class="product-sub">${product.description || ''}</div>
-        <div class="product-price">¥ ${Number(product.price).toLocaleString()} <small>询价优惠</small></div>
+        <div class="product-price">¥ ${Number(product.price).toLocaleString()} <small>${t('products.enquiry')}</small></div>
       </div>
     </a>
   `;
@@ -50,7 +60,7 @@ async function loadSubcategories(category) {
     const currentSub = getSubcategoryFromUrl();
 
     bar.innerHTML = `
-      <a href="index.html?category=${category}" class="sub-tag ${!currentSub ? 'active' : ''}">全部</a>
+      <a href="index.html?category=${category}" class="sub-tag ${!currentSub ? 'active' : ''}">${t('subcategory.all')}</a>
       ${data.map(row => `
         <a href="index.html?category=${category}&subcategory=${encodeURIComponent(row.subcategory)}"
            class="sub-tag ${currentSub === row.subcategory ? 'active' : ''}">
@@ -69,13 +79,14 @@ async function loadProducts(category = null, subcategory = null) {
   const grid = document.getElementById('productGrid');
   const title = document.getElementById('productsTitle');
 
+  const CATEGORY_MAP = getCategoryMap();
   if (category && CATEGORY_MAP[category]) {
     title.textContent = CATEGORY_MAP[category].name;
   } else {
-    title.textContent = '热门臻品';
+    title.textContent = t('products.title');
   }
 
-  grid.innerHTML = '<div class="loading">加载中...</div>';
+  grid.innerHTML = `<div class="loading">${t('products.loading')}</div>`;
 
   try {
     let url = `${API_BASE}/products?`;
@@ -86,13 +97,13 @@ async function loadProducts(category = null, subcategory = null) {
     const data = await res.json();
 
     if (!data.products || data.products.length === 0) {
-      grid.innerHTML = '<div class="empty">暂无商品，敬请期待</div>';
+      grid.innerHTML = `<div class="empty">${t('products.empty')}</div>`;
       return;
     }
 
     grid.innerHTML = data.products.map(renderProductCard).join('');
   } catch (err) {
-    grid.innerHTML = '<div class="empty">加载失败，请刷新重试</div>';
+    grid.innerHTML = `<div class="empty">${t('products.error')}</div>`;
   }
 }
 
@@ -119,7 +130,6 @@ async function sendMsg() {
   appendMsg(text, 'user');
   input.value = '';
 
-  // 显示"正在输入"提示
   const typingId = 'typing-' + Date.now();
   appendMsg('...', 'ai', typingId);
 
@@ -131,19 +141,28 @@ async function sendMsg() {
     });
     const data = await res.json();
 
-    // 移除"正在输入"提示，显示真实回复
     const typingEl = document.getElementById(typingId);
     if (typingEl) typingEl.remove();
     appendMsg(data.reply, 'ai');
   } catch (err) {
     const typingEl = document.getElementById(typingId);
     if (typingEl) typingEl.remove();
-    appendMsg('网络错误，请稍后重试', 'ai');
+    appendMsg(t('chat.error'), 'ai');
   }
 }
 
+// 语言切换后重新渲染动态内容
+window.onLangChange = function () {
+  const category = getCategoryFromUrl();
+  const subcategory = getSubcategoryFromUrl();
+  loadSubcategories(category);
+  loadProducts(category, subcategory);
+};
+
 // 页面初始化
 document.addEventListener('DOMContentLoaded', () => {
+  applyI18n();
+
   const category = getCategoryFromUrl();
   const subcategory = getSubcategoryFromUrl();
 

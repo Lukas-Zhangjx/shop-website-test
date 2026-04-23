@@ -31,7 +31,6 @@
     align-items: start;
   }
 
-  /* 图片区 */
   .detail-img {
     width: 100%;
     aspect-ratio: 1;
@@ -48,7 +47,6 @@
     font-size: 6rem; opacity: 0.2;
   }
 
-  /* 信息区 */
   .detail-info { padding-top: 16px; }
 
   .detail-category {
@@ -172,18 +170,23 @@
     <span>YIPIN CUIFANG · EST. 2008</span>
   </a>
   <ul>
-    <li><a href="../index.html?category=gold">黄金系列</a></li>
-    <li><a href="../index.html?category=silver">白银系列</a></li>
-    <li><a href="../index.html?category=jade">翡翠玉石</a></li>
-    <li><a href="../index.html#story">关于我们</a></li>
+    <li><a href="../index.html?category=gold" data-i18n="nav.gold">黄金系列</a></li>
+    <li><a href="../index.html?category=silver" data-i18n="nav.silver">白银系列</a></li>
+    <li><a href="../index.html?category=jade" data-i18n="nav.jade">翡翠玉石</a></li>
+    <li><a href="../index.html#story" data-i18n="nav.about">关于我们</a></li>
   </ul>
-  <a href="tel:13800000000" class="nav-contact">联系我们</a>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button id="langToggle" class="lang-toggle" onclick="toggleLang()">EN</button>
+    <a href="tel:13800000000" class="nav-contact" data-i18n="nav.contact">联系我们</a>
+  </div>
 </nav>
 
 <div class="detail-wrap" style="margin-top: 70px; padding-top: 40px;">
   <!-- 面包屑 -->
   <div class="breadcrumb" id="breadcrumb">
-    <a href="../index.html">首页</a> / <span id="breadcrumbCategory">商品</span> / <span id="breadcrumbName">加载中...</span>
+    <a href="../index.html" id="breadcrumbHome">首页</a> /
+    <span id="breadcrumbCategory">商品</span> /
+    <span id="breadcrumbName">加载中...</span>
   </div>
 
   <!-- 详情内容 -->
@@ -197,20 +200,20 @@
   <span class="footer-logo">一品翠坊</span>
   <div class="footer-info">
     <div class="footer-info-item">
-      <span class="footer-info-label">地址</span>
-      <span>珠宝街88号一品翠坊旗舰店</span>
+      <span class="footer-info-label" data-i18n="footer.address.label">地址</span>
+      <span data-i18n="footer.address">珠宝街88号一品翠坊旗舰店</span>
     </div>
     <div class="footer-info-item">
-      <span class="footer-info-label">电话</span>
+      <span class="footer-info-label" data-i18n="footer.phone.label">电话</span>
       <span>138-0000-0000</span>
     </div>
     <div class="footer-info-item">
-      <span class="footer-info-label">营业时间</span>
-      <span>每日 09:00 — 20:00</span>
+      <span class="footer-info-label" data-i18n="footer.hours.label">营业时间</span>
+      <span data-i18n="footer.hours">每日 09:00 — 20:00</span>
     </div>
   </div>
   <div class="footer-divider"></div>
-  <div class="footer-copy">© 2024 一品翠坊 · 版权所有</div>
+  <div class="footer-copy" data-i18n="footer.copy">© 2024 一品翠坊 · 版权所有</div>
 </footer>
 
 <!-- AI客服 -->
@@ -219,52 +222,64 @@
   <div class="ai-chat-header">
     <div class="ai-avatar">✦</div>
     <div>
-      <div class="ai-name">翠坊智能客服</div>
-      <div class="ai-status">在线 · 随时为您服务</div>
+      <div class="ai-name" data-i18n="chat.name">翠坊智能客服</div>
+      <div class="ai-status" data-i18n="chat.status">在线 · 随时为您服务</div>
     </div>
   </div>
   <div class="ai-messages" id="aiMessages">
-    <div class="msg msg-ai">您好！欢迎光临一品翠坊 ✨<br>有任何问题随时告诉我！</div>
+    <div class="msg msg-ai" data-i18n="chat.greeting">您好！欢迎光临一品翠坊 ✨<br>有任何问题随时告诉我！</div>
   </div>
   <div class="ai-input-area">
-    <input class="ai-input" id="aiInput" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="ai-send" onclick="sendMsg()">发送</button>
+    <input class="ai-input" id="aiInput" data-i18n-ph="chat.placeholder" placeholder="输入您的问题..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="ai-send" onclick="sendMsg()" data-i18n="chat.send">发送</button>
   </div>
 </div>
 
+<script src="../js/i18n.js"></script>
 <script>
   const API_BASE = 'https://shop-website-test.onrender.com/api';
 
-  const CATEGORY_MAP = {
-    gold: { name: '黄金系列', icon: '✦' },
-    silver: { name: '白银系列', icon: '◈' },
-    jade: { name: '翡翠玉石', icon: '❋' },
-  };
+  function getCategoryMap() {
+    return {
+      gold:   { name: t('category.gold'),   icon: '✦' },
+      silver: { name: t('category.silver'), icon: '◈' },
+      jade:   { name: t('category.jade'),   icon: '❋' },
+    };
+  }
 
   async function loadProduct() {
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) { window.location.href = '../index.html'; return; }
 
+    document.getElementById('detailContent').innerHTML =
+      `<div class="loading">${t('detail.loading')}</div>`;
+
     try {
       const res = await fetch(`${API_BASE}/products/${id}`);
-      if (!res.ok) throw new Error('商品不存在');
+      if (!res.ok) throw new Error('not found');
       const product = await res.json();
       renderProduct(product);
     } catch (err) {
       document.getElementById('detailContent').innerHTML =
-        '<div class="empty">商品不存在或已下架</div>';
+        `<div class="empty">${t('detail.not.found')}</div>`;
     }
   }
 
   function renderProduct(product) {
+    const CATEGORY_MAP = getCategoryMap();
     const category = CATEGORY_MAP[product.category] || { name: product.category, icon: '✦' };
     const imageHtml = product.image_path
       ? `<img src="${API_BASE.replace('/api', '')}${product.image_path}" alt="${product.name}">`
       : `<div class="detail-img-placeholder">${category.icon}</div>`;
 
+    document.getElementById('breadcrumbHome').textContent = t('detail.home');
     document.getElementById('breadcrumbCategory').textContent = category.name;
     document.getElementById('breadcrumbName').textContent = product.name;
     document.title = `${product.name} · 一品翠坊`;
+
+    const stockText = product.stock > 0
+      ? `${product.stock} ${t('detail.stock.unit')}`
+      : t('detail.stock.out');
 
     document.getElementById('detailContent').innerHTML = `
       <div class="detail-grid">
@@ -274,51 +289,77 @@
           <h1 class="detail-name">${product.name}</h1>
           <div class="detail-divider"></div>
           <div class="detail-price">¥ ${Number(product.price).toLocaleString()}</div>
-          <div class="detail-price-note">价格仅供参考，以当日报价为准</div>
-          <div class="detail-desc">${product.description || '暂无描述'}</div>
+          <div class="detail-price-note">${t('detail.price.note')}</div>
+          <div class="detail-desc">${product.description || t('detail.no.desc')}</div>
           <div class="detail-meta">
             <div class="detail-meta-item">
-              <span class="detail-meta-label">分类</span>
+              <span class="detail-meta-label">${t('detail.cat.label')}</span>
               <span class="detail-meta-value">${category.name}</span>
             </div>
             <div class="detail-meta-item">
-              <span class="detail-meta-label">库存</span>
-              <span class="detail-meta-value">${product.stock > 0 ? `${product.stock} 件` : '暂时缺货'}</span>
+              <span class="detail-meta-label">${t('detail.stock.label')}</span>
+              <span class="detail-meta-value">${stockText}</span>
             </div>
           </div>
           <div class="detail-actions">
-            <a href="tel:13800000000" class="btn-enquiry">立即询价</a>
-            <a href="../index.html" class="btn-back">← 返回</a>
+            <a href="tel:13800000000" class="btn-enquiry">${t('detail.enquiry')}</a>
+            <a href="../index.html" class="btn-back">${t('detail.back')}</a>
           </div>
         </div>
       </div>
     `;
   }
 
+  // 语言切换后重新渲染
+  window.onLangChange = function () {
+    loadProduct();
+  };
+
   // AI 客服
   function toggleChat() { document.getElementById('aiChat').classList.toggle('open'); }
 
-  function sendMsg() {
+  function appendMsg(text, type, id = null) {
+    const messages = document.getElementById('aiMessages');
+    const div = document.createElement('div');
+    div.className = `msg msg-${type}`;
+    div.textContent = text;
+    if (id) div.id = id;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function sendMsg() {
     const input = document.getElementById('aiInput');
     const text = input.value.trim();
     if (!text) return;
-    const messages = document.getElementById('aiMessages');
-    const userDiv = document.createElement('div');
-    userDiv.className = 'msg msg-user';
-    userDiv.textContent = text;
-    messages.appendChild(userDiv);
+
+    appendMsg(text, 'user');
     input.value = '';
-    messages.scrollTop = messages.scrollHeight;
-    setTimeout(() => {
-      const aiDiv = document.createElement('div');
-      aiDiv.className = 'msg msg-ai';
-      aiDiv.textContent = '感谢询问！请拨打 138-0000-0000 或直接来店，我们将为您详细介绍。';
-      messages.appendChild(aiDiv);
-      messages.scrollTop = messages.scrollHeight;
-    }, 600);
+
+    const typingId = 'typing-' + Date.now();
+    appendMsg('...', 'ai', typingId);
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+      const typingEl = document.getElementById(typingId);
+      if (typingEl) typingEl.remove();
+      appendMsg(data.reply, 'ai');
+    } catch (err) {
+      const typingEl = document.getElementById(typingId);
+      if (typingEl) typingEl.remove();
+      appendMsg(t('chat.error'), 'ai');
+    }
   }
 
-  document.addEventListener('DOMContentLoaded', loadProduct);
+  document.addEventListener('DOMContentLoaded', () => {
+    applyI18n();
+    loadProduct();
+  });
 </script>
 </body>
 </html>

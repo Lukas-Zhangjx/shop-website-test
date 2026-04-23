@@ -84,6 +84,21 @@ nav ul li a:hover::after { transform: scaleX(1); }
 
 .nav-contact:hover { background: var(--gold); color: var(--green-dark); }
 
+.lang-toggle {
+  padding: 6px 14px;
+  border: 1px solid rgba(201,168,76,0.4);
+  background: transparent;
+  color: rgba(201,168,76,0.8);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+  margin-left: 12px;
+}
+
+.lang-toggle:hover { background: rgba(201,168,76,0.15); color: var(--gold); border-color: var(--gold); }
+
 /* ===== Section 通用 ===== */
 section { padding: 100px 60px; }
 
