@@ -5,16 +5,13 @@ const pool = require('../db/database');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// 从数据库搜索相关商品（RAG）
-async function searchProducts(question) {
-  const keywords = question.replace(/[？?！!，,。.]/g, ' ').trim();
+// 获取所有上架商品（RAG：商品数量少，全部给 AI 判断）
+async function getAllProducts() {
   const result = await pool.query(
     `SELECT name, description, price, category, subcategory, stock
      FROM products
      WHERE is_active = 1
-       AND (name ILIKE $1 OR description ILIKE $1 OR subcategory ILIKE $1)
-     LIMIT 5`,
-    [`%${keywords}%`]
+     ORDER BY category, name`
   );
   return result.rows;
 }
@@ -52,9 +49,9 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // RAG：同时搜商品和文档
+    // RAG：获取全部商品 + 搜索相关文档
     const [products, documents] = await Promise.all([
-      searchProducts(message),
+      getAllProducts(),
       searchDocuments(message),
     ]);
 
