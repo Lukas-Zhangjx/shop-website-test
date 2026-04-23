@@ -46,12 +46,15 @@ refactor/xxx 重构
 | `chore` | 配置、依赖等杂项 |
 | `test` | 测试相关 |
 
-### 示例
+### Language rule
+All commit messages **must be written in English** — subject line and body.
+
+### Examples
 ```bash
-feat(products): 添加商品图片上传功能
-fix(auth): 修复 JWT 过期未返回 401 的问题
-style(home): 调整首页 Hero 区域间距
-chore: 添加 ESLint 和 Prettier 配置
+feat(products): add product image upload
+fix(auth): return 401 when JWT has expired
+style(home): adjust hero section spacing
+chore: add ESLint and Prettier config
 ```
 
 ---
@@ -87,17 +90,20 @@ JS工具：  product-utils.js  小写短横线
 - 函数不超过 50 行
 - 嵌套不超过 3 层，超过则拆函数
 
-### 注释原则
+### Comment language rule
+All inline comments and JSDoc **must be written in English**.
+
+### Comment style
 ```javascript
-// ✅ 解释"为什么"，不解释"是什么"
-// 金价按克计算，需乘以当日实时报价
+// ✅ Explain "why", not "what"
+// Gold price is calculated per gram, multiply by today's live rate
 const price = goldPrice * weight;
 
 /**
- * 根据分类获取商品列表
- * @param {string} category - 分类名称
- * @param {number} page - 页码
- * @returns {Array} 商品列表
+ * Fetch product list by category
+ * @param {string} category - category key (gold / silver / jade)
+ * @param {number} page - page number
+ * @returns {Array} product list
  */
 function getProducts(category, page) {}
 ```
