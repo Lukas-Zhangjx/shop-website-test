@@ -14,13 +14,71 @@ function clearToken() { localStorage.removeItem('admin_token'); }
 // ===== 页面切换 =====
 function showAdmin() {
   document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('registerPage').style.display = 'none';
   document.getElementById('adminPage').style.display = 'block';
   loadProducts();
 }
 
 function showLogin() {
   document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('registerPage').style.display = 'none';
   document.getElementById('adminPage').style.display = 'none';
+}
+
+function showRegister() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('registerPage').style.display = 'flex';
+  document.getElementById('adminPage').style.display = 'none';
+}
+
+// ===== 注册管理员 =====
+async function register() {
+  const username = document.getElementById('regUsername').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+  const confirm = document.getElementById('regPasswordConfirm').value.trim();
+  const errorEl = document.getElementById('registerError');
+
+  errorEl.style.display = 'none';
+
+  if (!username || !password) {
+    errorEl.textContent = '请填写用户名和密码';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (password.length < 6) {
+    errorEl.textContent = '密码至少6位';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  if (password !== confirm) {
+    errorEl.textContent = '两次密码不一致';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent = data.message || '创建失败';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    showToast('管理员创建成功，请登录');
+    showLogin();
+  } catch (err) {
+    errorEl.textContent = '网络错误，请检查后端是否启动';
+    errorEl.style.display = 'block';
+  }
 }
 
 // ===== 登录 =====
