@@ -30,6 +30,16 @@ async function initDB() {
       )
     `);
 
+    // 建表：文档（PDF等，用于RAG）
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        filename TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('数据库初始化完成');
   } finally {
     client.release();

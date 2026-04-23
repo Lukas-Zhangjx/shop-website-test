@@ -8,6 +8,8 @@ initDB().catch(err => console.error('数据库初始化失败:', err));
 
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
+const chatRoutes = require('./routes/chat');
+const documentRoutes = require('./routes/documents');
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // API 路由
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/documents', documentRoutes);
 
 // 健康检查
 app.get('/api/health', (req, res) => {

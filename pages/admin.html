@@ -370,6 +370,29 @@
         </tbody>
       </table>
     </div>
+
+    <!-- PDF 文档管理 -->
+    <div class="toolbar" style="margin-top:40px">
+      <div class="toolbar-title">知识库文档（RAG）</div>
+      <label class="btn-add" style="cursor:pointer">
+        + 上传 PDF
+        <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="uploadPDF(this)">
+      </label>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>文件名</th>
+            <th>上传时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="documentTable">
+          <tr><td colspan="3" style="text-align:center;padding:24px;color:#999">加载中...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </main>
 </div>
 

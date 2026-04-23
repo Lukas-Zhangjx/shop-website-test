@@ -101,11 +101,12 @@ function toggleChat() {
   document.getElementById('aiChat').classList.toggle('open');
 }
 
-function appendMsg(text, type) {
+function appendMsg(text, type, id = null) {
   const messages = document.getElementById('aiMessages');
   const div = document.createElement('div');
   div.className = `msg msg-${type}`;
   div.textContent = text;
+  if (id) div.id = id;
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
@@ -118,24 +119,27 @@ async function sendMsg() {
   appendMsg(text, 'user');
   input.value = '';
 
-  setTimeout(() => {
-    const keyword = text.toLowerCase();
-    let reply = '感谢您的询问！建议您直接来店体验，或拨打 138-0000-0000 咨询。';
+  // 显示"正在输入"提示
+  const typingId = 'typing-' + Date.now();
+  appendMsg('...', 'ai', typingId);
 
-    if (keyword.includes('翡翠') || keyword.includes('jade')) {
-      reply = '我们翡翠系列均为A货，提供权威鉴定证书。目前有手镯、吊坠、平安扣等款式，欢迎来店鉴赏！';
-    } else if (keyword.includes('黄金') || keyword.includes('gold')) {
-      reply = '黄金系列按当日金价计算，足金999/千足金999.9均有，款式包括项链、戒指、手镯等。';
-    } else if (keyword.includes('白银') || keyword.includes('silver')) {
-      reply = '白银系列采用S990/S999足银，价格亲民，款式精美，适合日常佩戴和送礼。';
-    } else if (keyword.includes('价格') || keyword.includes('多少钱')) {
-      reply = '价格因款式和克重不同而异，欢迎来店或拨打 138-0000-0000 获取最新报价！';
-    } else if (keyword.includes('地址') || keyword.includes('在哪')) {
-      reply = '我们位于珠宝街88号，营业时间每日 09:00-20:00，欢迎光临！';
-    }
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
+    });
+    const data = await res.json();
 
-    appendMsg(reply, 'ai');
-  }, 600);
+    // 移除"正在输入"提示，显示真实回复
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
+    appendMsg(data.reply, 'ai');
+  } catch (err) {
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) typingEl.remove();
+    appendMsg('网络错误，请稍后重试', 'ai');
+  }
 }
 
 // 页面初始化

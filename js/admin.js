@@ -17,6 +17,7 @@ function showAdmin() {
   document.getElementById('registerPage').style.display = 'none';
   document.getElementById('adminPage').style.display = 'block';
   loadProducts();
+  loadDocuments();
 }
 
 function showLogin() {
@@ -314,6 +315,72 @@ async function deleteProduct(id, name) {
     loadProducts();
   } catch (err) {
     showToast('网络错误');
+  }
+}
+
+// ===== 文档管理 =====
+async function loadDocuments() {
+  const tbody = document.getElementById('documentTable');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/documents`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const docs = await res.json();
+
+    if (!docs.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:#999">暂无文档，上传 PDF 作为 AI 客服的知识库</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = docs.map(doc => `
+      <tr>
+        <td>📄 ${doc.filename}</td>
+        <td style="color:#999;font-size:0.8rem">${new Date(doc.created_at).toLocaleString('zh-CN')}</td>
+        <td><button class="btn-delete" onclick="deleteDocument(${doc.id}, '${doc.filename}')">删除</button></td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:24px;color:#c0392b">加载失败</td></tr>';
+  }
+}
+
+async function uploadPDF(input) {
+  if (!input.files || !input.files[0]) return;
+
+  const formData = new FormData();
+  formData.append('pdf', input.files[0]);
+  input.value = '';
+
+  showToast('上传中，请稍候...');
+
+  try {
+    const res = await fetch(`${API_BASE}/documents`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: formData,
+    });
+    const data = await res.json();
+    showToast(data.message || '上传成功');
+    loadDocuments();
+  } catch (err) {
+    showToast('上传失败，请重试');
+  }
+}
+
+async function deleteDocument(id, filename) {
+  if (!confirm(`确定删除「${filename}」？`)) return;
+  try {
+    const res = await fetch(`${API_BASE}/documents/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const data = await res.json();
+    showToast(data.message || '删除成功');
+    loadDocuments();
+  } catch (err) {
+    showToast('删除失败');
   }
 }
 
