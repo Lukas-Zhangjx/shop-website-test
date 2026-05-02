@@ -152,15 +152,15 @@ function getProducts(category, page) {}
 
 ---
 
-## 技术栈
+## Tech Stack
 
 ```
-前端：原生 HTML / CSS / JS（托管于 GitHub Pages）
-后端：Node.js + Express
-数据库：SQLite（开发） / PostgreSQL（生产）
-部署：Railway
-图片：存后端 /uploads 目录，数据库只存路径
-认证：JWT
+Frontend:  Vanilla HTML / CSS / JS — hosted on GitHub Pages
+Backend:   Node.js + Express — deployed on Render
+Database:  Supabase (PostgreSQL) — connected via Session Pooler (IPv4-compatible)
+Images:    stored in backend /uploads dir; DB stores path only
+Auth:      JWT (7-day expiry)
+AI:        Groq API (llama-3.1-8b-instant) + RAG via DB product/document search
 ```
 
 ## 项目结构
